@@ -47,6 +47,11 @@ paths["shp_out"] = os.path.join(dirname, "..", "Data", "Outputs",  "Shapefiles",
 paths["raster_out"] = os.path.join(dirname, "..", "Data", "Outputs",  "Rasters", "")
 paths["images"] = os.path.join(dirname, "..", "Images", "")
 
+#-- Notes --#
+# Corine land-cover classifications can be found here:
+# https://land.copernicus.eu/user-corner/technical-library/corine-land-cover-nomenclature-guidelines/html
+
+
 
 #----------------#
 #== PARAMETERS ==#
