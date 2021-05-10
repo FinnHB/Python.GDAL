@@ -13,9 +13,6 @@ This repository was set up in particular to explore the functionalities of GDAL 
 7. Creating new polygons based on lists of coordinates.
 
 The resulting map of the cropped Digital Elevation Model can be seen below.
-
 ![plot](https://github.com/FinnHB/Python.GDAL/blob/main/Images/north_yorkshire_dem.png)
-
 A binary (0,1) mask was also constructed based on the a given elevation range and land-use type.
-
 ![plot](https://github.com/FinnHB/Python.GDAL/blob/main/Images/binary_mask.png)
