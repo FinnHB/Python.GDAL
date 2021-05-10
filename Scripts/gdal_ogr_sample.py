@@ -29,7 +29,6 @@ from osgeo import gdal, ogr, osr
 import matplotlib.pyplot as plt
 import os
 from itertools import compress
-import subprocess
 
 
 
@@ -40,17 +39,14 @@ os.listdir(dirname)
 
 #Relative paths
 paths = dict()
+
 paths["shp_in"] = os.path.join(dirname, "..", "Data", "Inputs", "Shapefiles", "")
 paths["raster_in"] = os.path.join(dirname, "..", "Data", "Inputs",  "Rasters", "")
 paths["data_in"] = os.path.join(dirname, "..", "Data", "Inputs",  "Datasets", "")
+
 paths["shp_out"] = os.path.join(dirname, "..", "Data", "Outputs",  "Shapefiles", "")
 paths["raster_out"] = os.path.join(dirname, "..", "Data", "Outputs",  "Rasters", "")
 paths["images"] = os.path.join(dirname, "..", "Images", "")
-
-#-- Notes --#
-# Corine land-cover classifications can be found here:
-# https://land.copernicus.eu/user-corner/technical-library/corine-land-cover-nomenclature-guidelines/html
-
 
 
 #----------------#
@@ -70,35 +66,24 @@ corine_regions = (211,245)                                            #Lower and
 corine_nomclature = "agriculture"                                     #Name to be used to identify tif file subset by corine_regions (not including file suffix)
 
 
+#-- Notes --#
+# Corine land-cover classifications can be found here:
+# https://land.copernicus.eu/user-corner/technical-library/corine-land-cover-nomenclature-guidelines/html
+
 
 #-----------------------------------#
 #== READING & PRE-PROCESSING DATA ==#
 #-----------------------------------#
 #-- Reading Data --#
 #Reading corine land cover
-corine = gdal.Open(paths["raster_in"] + "corine_lc_2018.tif")
+corine = gdal.Open(paths["raster_in"] + "corine_lowres.tif")
+
+#Read in DEM for North Yorkshire
+ny_dem = gdal.Open(paths["raster_in"] + "dem_lowres.tif")
 
 #UK border & counties
 uk = ogr.Open(paths["shp_in"] + "uk_poly.shp", 1)                     #0 = immutable, 1 = mutable
 counties = ogr.Open(paths["shp_in"] + "uk_counties.shp", 1)
-
-#Combine all the DEMs for North Yorkshire into a single DEM
-ny_dem = gdal.Open(paths["raster_in"] + "nyorkshire_dem.tif")
-
-
-#-- Reproject to WGS84 --#
-#Corine land cover
-fname = "corine_wgs84.tif"
-if fname not in os.listdir(paths["raster_out"]) or overwrite == True:
-    file = paths["raster_out"] + fname
-    corine_wgs84 = gdal.Warp(file, corine, dstSRS = "EPSG:4326")
-
-#North Yorkshire DEM
-fname = "nyorkshire_dem_wgs84.tif"
-if fname not in os.listdir(paths["raster_out"]) or overwrite == True:
-    file = paths["raster_out"] + fname
-    dem_wgs84 = gdal.Warp(file, ny_dem, dstSRS = "EPSG:4326")
-
 
 
 #-- Extract County of North Yorkshire --#
@@ -127,25 +112,21 @@ outds.Destroy()
 
 #-- Clipping Data to North Yorkshire --#
 #Clipping corine Corine Landcover
-fname = "corine_ny.tif"
+fname = "corine_ny.tif"                                               #Output filename
 if fname not in os.listdir(paths["raster_out"]) or overwrite == True:
     #Reads in Corine data if not already loaded
-    if "corine_wgs84" not in locals():
-        corine_wgs84 = gdal.Open(paths["raster_out"] + "corine_wgs84.tif")
     file = paths["raster_out"] + fname
     crop_poly = paths["shp_out"] + "nyorkshire.shp"
-    corine_ny = gdal.Warp(file, corine_wgs84, cutlineDSName = crop_poly,
+    corine_ny = gdal.Warp(file, corine, cutlineDSName = crop_poly,
                           cropToCutline = True, dstNodata = np.nan)
 
 #Clipping DEM
 fname = "dem_ny.tif"
 if fname not in os.listdir(paths["raster_out"]) or overwrite == True:
     #Reads in DEM if not already loaded
-    if "corine_wgs84" not in locals():
-        dem_wgs84 = gdal.Open(paths["raster_out"] + "nyorkshire_dem_wgs84.tif")
     file = paths["raster_out"] + fname
     crop_poly = paths["shp_out"] + "nyorkshire.shp"
-    dem_ny = gdal.Warp(file, dem_wgs84, cutlineDSName = crop_poly,
+    dem_ny = gdal.Warp(file, ny_dem, cutlineDSName = crop_poly,
                        cropToCutline = True, dstNodata = np.nan)
 
 
@@ -158,8 +139,8 @@ if "dem_ny" not in locals():
     dem_ny = gdal.Open(paths["raster_out"] + "dem_ny.tif")
 
 #Getting values
-corine_vals = corine_ny.GetRasterBand(1).ReadAsArray()
-dem_vals = dem_ny.GetRasterBand(1).ReadAsArray()
+corine_vals = corine_ny.ReadAsArray()
+dem_vals = dem_ny.ReadAsArray()
 
 if show_plots:
     #Image of both maps
@@ -255,16 +236,10 @@ file = paths["raster_out"] + corine_nomclature + ".tiff"
 corine_lu = gdal.Open(file)
 
 
-#Create version with the same resolution as the corine data
-gt = corine_lu.GetGeoTransform()
-gt = dem.GetGeoTransform()
-
-
-
 #-- Visualising Results --#
 #Getting values
-corine_vals = corine_lu.GetRasterBand(1).ReadAsArray()
-dem_vals = dem.GetRasterBand(1).ReadAsArray()
+corine_vals = corine_lu.ReadAsArray()
+dem_vals = dem.ReadAsArray()
 
 #Image of the maps
 if show_plots:
@@ -275,8 +250,6 @@ if show_plots:
     ax[1].imshow(dem_vals)
     if save_plots:
         plt.savefig(paths["images"] + "binary_mask.png")
-
-
 
 
 
