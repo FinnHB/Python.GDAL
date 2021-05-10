@@ -1,0 +1,65 @@
+#========================#
+#====  DATA SOURCES  ====#
+#========================#
+Date: 07 May, 2021
+
+
+#== Description ==#
+
+This document contains an overview over the sources of the data contained in all the
+subdirectories of this folder.
+
+
+
+______________________________________________________________________
+
+#--------------#
+#-- Datasets --#
+#--------------#
+
+Description 	:	CSV file containing a small sample of coordinates for some polygons
+Filename   	:	poly_coords.csv
+Source     	:	-
+URL         	:	-
+Comment     	:	Coordinates chosen at random.
+
+
+#-------------#
+#-- Rasters --#
+#-------------#
+
+Description 	:	Digital elevation model of North Yorkshire
+Filename   	:	nyorkshire_dem.tif
+Source     	:	Opendem
+URL         	:	https://www.opendem.info/opendemeu_download_4258.html
+Comment     	:	6 DEM's merged together. Raw files can be found in the DEMs folder.
+
+----------------
+
+
+Description 	:	Corine landcover data from 2018
+Filename   	:	corine_lc_2018.tif
+Source     	:	European Environment Agency & European Commission
+URL         	:	https://land.copernicus.eu/pan-european/corine-land-cover
+Comment     	:	Classifies land-uses for the whole of the EU. Legend can be found here:
+			https://land.copernicus.eu/user-corner/technical-library/corine-land-cover-nomenclature-guidelines/html
+
+
+#----------------#
+#-- Shapefiles --#
+#----------------#
+
+Description 	:	Shapefile of all UK counties
+Filename   	:	uk_counties.shp
+Source     	:	Office of National Statistics
+URL         	:	https://geoportal.statistics.gov.uk/datasets/b216b4c8a4e74f6fb692a1785255d777_0?geometry=-44.250%2C51.099%2C39.378%2C59.780
+Comment     	:	-
+
+----------------
+
+Description 	:	All countries aggregated into a single shapefile. Based upon uk_counties.shp
+Filename   	:	uk_poly.shp
+Source     	:	Office of National Statistics
+URL         	:	-
+Comment     	:	-
+
